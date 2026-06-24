@@ -1,0 +1,38 @@
+/* ============================================================
+   THEME: mission-control — 관제 시트 (라이트)
+   쓰임새: AI 에이전트, 자동화/운영, 실습 비중 큰 수업
+   컨셉: 항공 관제 시트. 상단 텔레메트리 라벨, 신호등(GO/HOLD/NO-GO) 상태, 점선 비행 궤적.
+   타이포: Space Grotesk(디스플레이) · Pretendard(본문) · IBM Plex Mono(텔레메트리)
+   frontmatter: colorSchema: light
+   ============================================================ */
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=IBM+Plex+Mono:wght@400;600&display=swap');
+
+:root {
+  --display: 'Space Grotesk', 'Pretendard', sans-serif;
+  --sans: 'Pretendard', 'IBM Plex Sans KR', sans-serif;
+  --mono: 'IBM Plex Mono', monospace;
+
+  --paper: #F6F7F4;
+  --ink: #0F1E32;
+  --dim: #54647A;
+  --rule: #C9D3DB;
+  --card: #FFFFFF;
+
+  --accent: #E14F12;          /* international orange */
+  --accent-soft: #FBE9E0;
+
+  --chip-bg: #E8ECEF;
+  --shadow: 0 14px 16px -16px rgba(15, 30, 50, 0.35);
+  --shot-bar: #EDF0F2;
+  --shot-dots: #C3CCD4;
+
+  --ok: #0B7A4B;   --ok-soft: #E4F3EB;
+  --warn: #B45309; --warn-soft: #FBEEDD;
+  --bad: #B42318;  --bad-soft: #FBE7E5;
+}
+
+/* 시그니처: 신호등 칩 별칭 (.sig.go/.hold/.nogo도 받기) */
+.sig.go { color: var(--ok); }
+.sig.hold { color: var(--warn); }
+.sig.nogo { color: var(--bad); }

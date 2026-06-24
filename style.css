@@ -1,0 +1,367 @@
+@import './theme.css';
+/* ============================================================================
+   덱 컴포넌트 코어 — 색·폰트는 여기 없다. theme.css(토큰)에서만 가져온다.
+   새 덱: themes/<이름>.css 를 이 폴더의 theme.css 로 복사하면 색·타이포가 바뀐다.
+
+   설계 원칙(reference/design-principles.md 요약):
+   - 슬라이드당 강조(accent)는 한 곳. .pane.key / .callout 류는 섹션당 1회.
+   - 강조는 weight·색·opacity로. 한글은 이탤릭 금지(em도 normal로 푼다).
+   - 모든 컴포넌트는 자식 태그 "계약"을 주석으로 명시 — 계약 위반이 최대 버그원인.
+   - absolute 콜라주 금지. grid/flex 문서 흐름 + min-height.
+   ============================================================================ */
+
+/* ---------- 슬라이드 기본 ---------- */
+.slidev-layout {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  word-break: keep-all;          /* 한글: 음절 단위 줄바꿈 방지 */
+  line-height: 1.62;             /* 한글 본문은 1.6~1.7 (라틴보다 넉넉히) */
+  /* 본문을 세로 중앙에 — Slidev 기본 .slidev-layout은 display:block이라 짧은 내용이
+     위로 쏠리고 아래에 큰 여백이 남는다(구조적 원인). flex 중앙정렬로 균형을 잡는다.
+     브레드크럼은 아래 규칙으로 상단 고정(중앙정렬에서 제외). */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 100%;
+  padding: 4.4rem 3.2rem 2.8rem; /* 상단 패딩↑: 고정된 브레드크럼 자리 */
+  font-size: 1rem;
+}
+/* 브레드크럼/아이브로우는 흐름에서 빼 상단 고정 — 슬라이드마다 같은 위치(길찾기 일관성) */
+.slidev-layout > .crumbs, .slidev-layout > .eyebrow { position: absolute; top: 2.4rem; left: 3.2rem; right: 3.2rem; margin: 0; }
+.slidev-layout > :first-child { margin-top: 0; }
+.slidev-layout > :last-child { margin-bottom: 0; }
+
+/* ---------- 브레드크럼 (대 › 중 › 소) — 시그니처 자리 ----------
+   계약: <p class="crumbs"><b>대주제</b><span>중주제</span><em>소주제</em></p>
+   - b=대(코스), span=중(모듈), em=소(현재 슬라이드, "여기 있음").
+   - 작게 한 줄. 대·중은 dim, 소(em)는 ink로 살짝 강조(이탤릭 아님).
+   - 한 모듈 안에서는 b·span 그대로 두고 em만 슬라이드마다 바꾼다. */
+.crumbs {
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.04em;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0 0 0.7rem;
+  color: var(--dim);
+}
+.crumbs::before {            /* 시그니처 액센트 틱 */
+  content: '';
+  width: 0.6rem;
+  height: 0.6rem;
+  background: var(--accent);
+  flex: none;
+}
+.crumbs b { font-weight: 600; color: var(--dim); }
+.crumbs span { color: var(--dim); }
+.crumbs em { font-style: normal; color: var(--ink); font-weight: 600; }
+.crumbs span::before,
+.crumbs em::before {
+  content: '›';
+  margin-right: 0.5rem;
+  color: var(--rule);
+  font-weight: 400;
+}
+
+/* ---------- 아이브로우 (브레드크럼 대신 단순 구간 라벨이 필요할 때) ----------
+   계약: <p class="eyebrow">SECTION LABEL</p> — 평문만 */
+.eyebrow {
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--dim);
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin: 0 0 0.5rem;
+}
+.eyebrow::before { content: ''; width: 0.6rem; height: 0.6rem; background: var(--accent); flex: none; }
+.eyebrow::after { content: ''; flex: 1; height: 1px; background: var(--rule); }
+
+/* ---------- 헤드라인 (Assertion-Evidence: 주제 라벨 아님, '결론 문장') ---------- */
+.slidev-layout h1 {
+  font-family: var(--display);
+  font-size: 1.74rem;
+  font-weight: 700;
+  line-height: 1.28;
+  letter-spacing: -0.01em;
+  margin: 0 0 0.7rem;
+  color: var(--ink);
+}
+.slidev-layout h1 em { font-style: normal; color: var(--accent); }  /* 헤드라인 내 강조: 색만 */
+.slidev-layout h2 { font-family: var(--display); font-weight: 700; font-size: 1.34rem; margin: 0 0 0.5rem; }
+.slidev-layout h3 { font-size: 0.95rem; font-weight: 700; margin: 0 0 0.3rem; }
+
+/* 헤드라인 아래 한 줄 요지(부제). 계약: <p class="thesis">…</p> */
+.thesis {
+  font-size: 0.95rem;
+  color: var(--dim);
+  max-width: 46rem;         /* ch는 라틴 글자폭 기준(한글 ~2배)이라 rem으로 — 부제 조기 줄바꿈 방지 */
+  margin: -0.25rem 0 1rem;
+}
+
+/* 핵심 메시지 — 그 슬라이드의 지배 메시지를 본문 위계로 크게(제목 아래). 계약: <p class="lead">…<em>강조</em>…</p>
+   핵심을 dim 본문/callout에 묻지 말고 이걸로 키운다(디자인원칙 §1·§4). */
+.lead { font-size: 1.22rem; font-weight: 600; line-height: 1.5; color: var(--ink); max-width: 46rem; margin: 0.5rem 0 0.9rem; }
+.lead em { font-style: normal; color: var(--accent); }
+/* 인라인 시맨틱 텍스트 색 (빨강/주황 배경 박스 대신 — 디자인원칙 §4·§5). 예: <em class="bad">덮어쓴다</em> */
+.slidev-layout em.ok,   .slidev-layout .c-ok   { font-style: normal; color: var(--ok); }
+.slidev-layout em.warn, .slidev-layout .c-warn { font-style: normal; color: var(--warn); }
+.slidev-layout em.bad,  .slidev-layout .c-bad  { font-style: normal; color: var(--bad); }
+
+/* ---------- 카드 그리드 (나열·개념) ----------
+   계약: .duo/.trio/.quad 직계 자식은 .pane. .pane 안은 h3(제목)+p(본문)만. */
+.duo, .trio, .quad { display: grid; gap: 0.75rem; margin: 0.9rem 0; }
+.duo  { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.trio { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.quad { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.pane {
+  background: var(--card);
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+  padding: 0.8rem 0.95rem;
+  box-shadow: var(--shadow);
+}
+.pane h3 { color: var(--ink); }
+.pane p { font-size: 0.8rem; color: var(--dim); margin: 0; line-height: 1.55; }
+.pane p + p { margin-top: 0.35rem; }
+/* 라틴 라벨(코드/영문 키워드) — 제목 위 작은 모노 */
+.pane h3 .latin, .latin {
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  color: var(--accent);
+  letter-spacing: 0.06em;
+  display: block;
+  margin-bottom: 0.15rem;
+}
+.pane.key { border-color: var(--accent); border-width: 1.5px; }  /* 강조 카드: 섹션당 1회 */
+
+/* ---------- VS 비교 (양자 대결) ----------
+   계약: <div class="vs"><div class="pane">…</div><i class="vs-badge">VS</i><div class="pane">…</div></div> */
+.vs { display: grid; grid-template-columns: 1fr 2.6rem 1fr; align-items: stretch; gap: 0; margin: 0.9rem 0; }
+.vs .vs-badge {
+  font-style: normal; display: grid; place-items: center;
+  font-family: var(--display); font-weight: 700; font-size: 0.82rem; color: var(--accent);
+}
+
+/* ---------- 정의 리스트 (용어·기능 나열 — 카드 대신 헤어라인 행) ----------
+   계약: <div class="deflist"><div><b>용어</b><span>설명</span></div>…</div> */
+.deflist { display: grid; gap: 0; margin: 0.8rem 0; }
+.deflist > div {
+  display: grid; grid-template-columns: 11.5rem 1fr; gap: 1rem;
+  padding: 0.46rem 0; border-bottom: 1px solid var(--rule); align-items: baseline;
+}
+.deflist > div:last-child { border-bottom: none; }
+.deflist b { grid-column: 1; font-family: var(--mono); font-size: 0.76rem; font-weight: 600; color: var(--ink); }
+.deflist span { grid-column: 2; display: block; font-size: 0.8rem; color: var(--dim); line-height: 1.55; }
+.deflist.narrow > div { grid-template-columns: 8rem 1fr; }
+.deflist.wide > div { grid-template-columns: 14.5rem 1fr; }
+
+/* ---------- 단계 리스트 (순서 있는 절차 — 번호 카드) ----------
+   계약: <div class="steps"><div><b>제목</b><span>설명</span></div>…</div>
+         b/span은 block으로 풀어 inline 붙음 방지. */
+.steps { counter-reset: step; display: grid; gap: 0.55rem; margin: 0.9rem 0; }
+.steps > div {
+  counter-increment: step; display: grid; grid-template-columns: 2rem 1fr; gap: 0.7rem;
+  align-items: start; background: var(--card); border: 1px solid var(--rule);
+  border-radius: 8px; padding: 0.55rem 0.85rem;
+}
+.steps > div::before {
+  content: counter(step, decimal-leading-zero);
+  grid-column: 1; grid-row: 1 / span 2;
+  font-family: var(--display); font-weight: 700; font-size: 1rem; color: var(--accent); line-height: 1.4;
+}
+.steps b { display: block; grid-column: 2; font-size: 0.84rem; font-weight: 700; }
+.steps span { display: block; grid-column: 2; font-size: 0.76rem; color: var(--dim); line-height: 1.5; }
+
+/* ---------- 타임라인 (절차 — 레일 + 점) ----------
+   계약: <div class="timeline"><div><b>제목</b><span>설명</span></div>…</div> */
+.timeline { position: relative; display: grid; gap: 0.8rem; margin: 0.95rem 0 0 0.45rem; }
+.timeline::before { content: ''; position: absolute; left: 0.45rem; top: 0.55rem; bottom: 0.55rem; width: 2px; background: var(--rule); }
+.timeline > div { position: relative; padding-left: 1.8rem; }
+.timeline > div::before {
+  content: ''; position: absolute; left: 0; top: 0.18rem; width: 0.9rem; height: 0.9rem;
+  border-radius: 50%; background: var(--paper); border: 3px solid var(--accent); box-sizing: border-box;
+}
+.timeline b { display: block; font-size: 0.86rem; font-weight: 700; }
+.timeline span { display: block; font-size: 0.76rem; color: var(--dim); line-height: 1.5; margin-top: 0.12rem; }
+
+/* ---------- 가로 플로우 (파이프라인 — 화살표 연결) ----------
+   계약: <div class="flow"><div><b>라벨</b><span>설명</span></div>…</div> */
+.flow { display: flex; align-items: stretch; gap: 0; margin: 0.9rem 0; }
+.flow > div {
+  flex: 1; background: var(--card); border: 1px solid var(--rule); border-radius: 8px;
+  padding: 0.6rem 0.7rem; position: relative; margin-right: 1.6rem;
+}
+.flow > div:last-child { margin-right: 0; }
+.flow > div::after { content: '→'; position: absolute; right: -1.35rem; top: 50%; transform: translateY(-50%); color: var(--accent); font-weight: 700; }
+.flow > div:last-child::after { content: none; }
+.flow b { display: block; font-size: 0.8rem; font-weight: 700; }
+.flow span { display: block; font-size: 0.72rem; color: var(--dim); line-height: 1.45; margin-top: 0.15rem; }
+
+/* ---------- 존-맵 (영역 구분 + 작업 흐름: 로컬↔원격 · 클라↔서버 · 계층) ----------
+   계약: <div class="zonemap">
+           <div class="zone fill"><span class="zone-label">영역A</span>
+             <div class="boxes"><div class="box">..</div><div class="op">add</div><div class="box">..</div></div></div>
+           <div class="bridge"><span class="op">push</span><span class="op back">fetch</span></div>
+           <div class="zone plain"><span class="zone-label">영역B</span><div class="boxes"><div class="box">..</div></div></div>
+         </div>
+   .op = 화살표(→)+라벨, .op.back = ←. 색은 토큰만 → 테마 자동 일치. */
+.zonemap { display: flex; align-items: stretch; gap: 0; margin: 1.2rem 0; }
+.zonemap .zone { position: relative; border: 1.5px dashed var(--rule); border-radius: 12px; padding: 1.3rem 0.9rem 1rem; }
+.zonemap .zone.fill { flex: 1; background: var(--accent-soft); border-color: var(--accent); }
+.zonemap .zone.plain { display: flex; align-items: center; background: var(--card); }
+.zonemap .zone-label { position: absolute; top: -0.62rem; left: 1rem; background: var(--paper); padding: 0 0.45rem; font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--dim); }
+.zonemap .zone.fill .zone-label { color: var(--accent); }
+.zonemap .boxes { display: flex; align-items: center; height: 100%; }
+.zonemap .box { flex: 1; background: var(--card); border: 1px solid var(--rule); border-radius: 8px; padding: 0.6rem 0.4rem; font-size: 0.82rem; font-weight: 700; text-align: center; line-height: 1.3; }
+.zonemap .zone.plain .box { border-color: var(--accent); white-space: nowrap; padding: 0.9rem 1.1rem; }
+.zonemap .op { display: flex; flex-direction: column; align-items: center; gap: 0.08rem; font-family: var(--mono); font-size: 0.62rem; color: var(--dim); padding: 0 0.5rem; }
+.zonemap .op::before { content: '→'; color: var(--accent); font-size: 1.05rem; line-height: 1; font-weight: 700; }
+.zonemap .bridge { display: flex; flex-direction: column; justify-content: center; gap: 0.7rem; padding: 0 0.7rem; }
+.zonemap .bridge .op.back::before { content: '←'; }
+
+/* ---------- 빅스탯 (핵심 숫자 — 진짜 숫자가 요점일 때만) ----------
+   계약: <div class="bigstat"><div><i>라벨</i><b>숫자</b><span>설명</span></div>…</div> */
+.bigstat { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.85rem; margin: 1.05rem 0; }
+.bigstat.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.bigstat.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.bigstat > div { border-top: 3px solid var(--ink); padding-top: 0.5rem; }
+.bigstat > div.hot { border-top-color: var(--accent); }
+.bigstat i { font-style: normal; display: block; font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--dim); margin-bottom: 0.22rem; }
+.bigstat b { display: block; font-family: var(--display); font-size: 1.42rem; font-weight: 700; letter-spacing: -0.01em; line-height: 1.15; }
+.bigstat b small { font-size: 0.72rem; font-weight: 600; color: var(--dim); margin-left: 0.1rem; }
+.bigstat span { display: block; font-size: 0.72rem; color: var(--dim); line-height: 1.45; margin-top: 0.24rem; }
+
+/* ---------- 2열 본문+증거(이미지/스크린샷) — Assertion-Evidence 기본형 ----------
+   계약: <div class="split"><div>본문</div><div>이미지/보조</div></div> */
+.split { display: grid; grid-template-columns: 1.1fr 1fr; gap: 1.4rem; align-items: start; margin: 0.9rem 0; }
+.split.evidence { grid-template-columns: 1fr 1.25fr; }  /* 증거(이미지)를 더 크게 */
+.split img { border: 1px solid var(--rule); border-radius: 8px; box-shadow: var(--shadow); }
+.split figcaption, .imgcap { font-family: var(--mono); font-size: 0.62rem; color: var(--dim); margin-top: 0.4rem; }
+
+/* ---------- 스크린샷 프레임 (실습 — 창 크롬 + 캡션) ----------
+   계약: <figure class="shot"><img …><figcaption>…</figcaption></figure>
+   주석(bbox)은 annotate-steps.mjs로 이미지에 구워 넣는다. */
+.shot { background: var(--card); border: 1px solid var(--rule); border-radius: 10px; overflow: hidden; margin: 0; box-shadow: var(--shadow); }
+.shot::before { content: '● ● ●'; display: block; font-size: 0.42rem; letter-spacing: 0.2em; color: var(--shot-dots); padding: 0.34rem 0.65rem; border-bottom: 1px solid var(--rule); background: var(--shot-bar); }
+.shot img { display: block; width: 100%; max-height: 11.2rem; object-fit: contain; background: #fff; border: none; border-radius: 0; box-shadow: none; }
+.shot.wide img { max-height: 12.5rem; }
+.shot.crop img { max-height: 11.5rem; object-fit: cover; object-position: top; }
+.shot figcaption { font-family: var(--mono); font-size: 0.6rem; color: var(--dim); padding: 0.36rem 0.65rem; border-top: 1px solid var(--rule); }
+.shot-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.9rem; margin: 0.9rem 0; align-items: start; }
+.shot-row.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+/* 캡처 전 자리표시자: 실제 이미지 준비되면 <img>로 교체 */
+.shot-ph { display: grid; place-items: center; min-height: 9rem; background: repeating-linear-gradient(45deg, var(--shot-bar), var(--shot-bar) 10px, var(--card) 10px, var(--card) 20px); color: var(--dim); font-family: var(--mono); font-size: 0.72rem; text-align: center; padding: 1rem; }
+
+/* ---------- 다이어그램 피겨 (인라인 SVG·개념도 — 창 크롬 없는 깔끔 프레임) ----------
+   계약: <figure class="figure"><svg…/><figcaption>…</figcaption></figure>. SVG 색은 style="…var(--accent)…"로 토큰 참조 → 테마 일치 */
+.figure { text-align: center; margin: 1.1rem 0; }
+.figure svg, .figure img { max-width: 100%; height: auto; }
+.figure figcaption { font-family: var(--mono); font-size: 0.66rem; color: var(--dim); margin-top: 0.5rem; }
+
+/* ---------- 시맨틱 칩 (상태 — 색은 의미일 때만) ----------
+   계약: <i class="sig ok">…</i> / .warn / .bad. i 태그 전용. */
+.sig {
+  font-style: normal; font-family: var(--mono); font-size: 0.7rem; font-weight: 600; letter-spacing: 0.05em;
+  display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.18rem 0.6rem;
+  border-radius: 999px; border: 1px solid currentColor; margin-bottom: 0.4rem;
+}
+.sig::before { content: ''; width: 0.5rem; height: 0.5rem; border-radius: 50%; background: currentColor; }
+.sig.ok { color: var(--ok); }
+.sig.warn { color: var(--warn); }
+.sig.bad { color: var(--bad); }
+
+/* ---------- 칩 나열 (형식·키워드 태그) ----------
+   계약: <div class="chips"><i>PDF</i><i>DOCX</i>…</div> */
+.chips { display: flex; flex-wrap: wrap; gap: 0.38rem; margin: 0.55rem 0; }
+.chips i { font-style: normal; font-family: var(--mono); font-size: 0.66rem; padding: 0.18rem 0.55rem; border: 1px solid var(--rule); border-radius: 999px; background: var(--card); color: var(--ink); }
+.chips i.hot { border-color: var(--accent); color: var(--accent); }
+
+/* ---------- 콜아웃 (참고·부연·인용 전용 — 본문 밖 곁들임. 슬라이드당 0~1개, 남발 금지) ----------
+   계약: <div class="callout"><b>라벨</b> 본문…</div>. 핵심 메시지는 여기 담지 말 것(→ .lead/본문).
+   시맨틱 강조(주의/위험)는 색 배경 변형이 아니라 텍스트 색(.c-warn/.c-bad)·이모지로 한다(빨강/주황 배경 금지). */
+.callout { border-left: 3px solid var(--accent); background: var(--accent-soft); border-radius: 0 8px 8px 0; padding: 0.6rem 0.95rem; font-size: 0.82rem; margin: 0.9rem 0; color: var(--ink); }
+.callout b { font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.06em; text-transform: uppercase; margin-right: 0.4rem; color: var(--accent); }
+/* 하단 노트 밴드 별칭 (accent 톤) */
+.note { border-left: 3px solid var(--accent); background: var(--accent-soft); border-radius: 0 8px 8px 0; padding: 0.55rem 0.9rem; font-size: 0.8rem; margin: 0.9rem 0 0; color: var(--ink); }
+.note b { font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.06em; color: var(--accent); margin-right: 0.4rem; }
+
+/* ---------- 체크리스트 ----------
+   계약: .checklist 안의 ul>li */
+.checklist ul { list-style: none; padding: 0; margin: 0.8rem 0; display: grid; gap: 0.45rem; }
+.checklist li { background: var(--card); border: 1px solid var(--rule); border-radius: 8px; padding: 0.5rem 0.85rem; font-size: 0.82rem; }
+.checklist li::before { content: '☐'; color: var(--accent); font-weight: 700; margin-right: 0.55rem; }
+.checklist.done li::before { content: '☑'; color: var(--ok); }
+
+/* ---------- 인용 ----------
+   계약: <p class="quote">본문 <span class="who">— 출처</span></p> */
+.quote { font-size: 0.98rem; line-height: 1.7; color: var(--ink); border-left: 3px solid var(--ink); padding: 0.15rem 0 0.15rem 1.05rem; margin: 1rem 0; max-width: 44rem; }
+.quote em { font-style: normal; color: var(--accent); }
+.quote .who { display: block; font-family: var(--mono); font-size: 0.64rem; color: var(--dim); margin-top: 0.45rem; }
+
+/* ---------- 표 ---------- */
+.slidev-layout table { width: 100%; font-size: 0.8rem; border-collapse: collapse; margin: 0.8rem 0; }
+.slidev-layout th { font-family: var(--mono); font-size: 0.66rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--dim); text-align: left; border-bottom: 1.5px solid var(--ink); padding: 0.3rem 0.6rem 0.3rem 0; }
+.slidev-layout td { border-bottom: 1px solid var(--rule); padding: 0.42rem 0.6rem 0.42rem 0; color: var(--ink); vertical-align: top; }
+.slidev-layout td:first-child { font-weight: 600; }
+.slidev-layout tr:last-child td { border-bottom: none; }
+.compact-table table { font-size: 0.74rem; }
+.compact-table td { padding: 0.3rem 0.5rem 0.3rem 0; }
+
+/* ---------- 인라인 코드 / 코드블록 ---------- */
+.slidev-layout :not(pre) > code {
+  font-family: var(--mono); font-size: 0.82em; background: var(--chip-bg); color: var(--ink);
+  border-radius: 4px; padding: 0.08em 0.38em;
+  box-decoration-break: clone; -webkit-box-decoration-break: clone;   /* 칩 줄바꿈 시 갈라짐 방지 */
+}
+.slidev-layout pre { background: var(--card) !important; border: 1px solid var(--rule); border-radius: 8px; font-size: 0.72rem; line-height: 1.5; padding: 0.7rem 0.9rem; }
+.slidev-layout .slidev-code-wrapper { margin: 0.7rem 0; }
+
+/* ---------- 본문 리스트 ---------- */
+.slidev-layout ul:not(.checklist ul) { font-size: 0.86rem; padding-left: 1.1rem; }
+.slidev-layout li { margin: 0.22rem 0; }
+.slidev-layout li::marker { color: var(--accent); }
+
+/* ---------- 표지 ----------
+   계약: class: cover. .cover-telemetry(상단) + .title-block(가운데) + .cover-foot(하단) */
+/* 주의: Slidev default 레이아웃은 본문을 .my-auto.w-full 래퍼로 감싸 수직 중앙정렬하고
+   .slidev-layout 은 display:grid 다. 그래서 상단/하단 고정 요소는 flex가 아니라
+   "전체 높이 .slidev-layout(position:relative)에 absolute"로 앵커한다(.divider .div-file 와 동일 패턴). */
+.cover { position: relative; height: 100%; }
+.cover .cover-telemetry, .cover .cover-foot { position: absolute; left: 3.2rem; right: 3.2rem; font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.12em; color: var(--dim); display: flex; justify-content: space-between; }
+.cover .cover-telemetry { top: 2.2rem; border-bottom: 1px solid var(--rule); padding-bottom: 0.6rem; }
+.cover .cover-foot { bottom: 2.0rem; border-top: 1px solid var(--rule); padding-top: 0.6rem; }
+/* title-block 도 absolute로 수직 중앙 — grid/my-auto 래퍼에 의존하지 않아 결정론적 */
+.cover .title-block { position: absolute; top: 50%; left: 3.2rem; right: 3.2rem; transform: translateY(-50%); margin: 0; }
+.cover .latin-mark { font-family: var(--display); font-weight: 700; font-size: 1.05rem; letter-spacing: 0.34em; color: var(--accent); margin-bottom: 0.9rem; }
+.cover h1 { font-size: 2.7rem; line-height: 1.22; margin: 0 0 1rem; }
+.cover .cover-sub { font-size: 1rem; color: var(--dim); max-width: 36rem; }
+
+/* ---------- 섹션 디바이더 ----------
+   계약: class: divider. .div-no(모듈번호) + h2 + .div-sub + .div-file */
+.divider { display: flex; flex-direction: column; justify-content: center; position: relative; }
+.divider::before { content: ''; position: absolute; left: 3.2rem; right: 3.2rem; top: 24%; border-top: 2px dashed var(--rule); }
+.div-no { font-family: var(--display); font-weight: 700; font-size: 5rem; color: var(--accent); line-height: 1; margin: 0 0 1rem; }
+.divider h2 { font-size: 2rem; margin: 0 0 0.6rem; }
+.div-sub { font-size: 1rem; color: var(--dim); margin: 0; max-width: 46ch; }
+.div-file { position: absolute; bottom: 2.2rem; font-family: var(--mono); font-size: 0.72rem; color: var(--dim); }
+
+/* ---------- 참조줄 (여백 있는 슬라이드 하단에만) ---------- */
+.refs { font-family: var(--mono); font-size: 0.68rem; color: var(--dim); line-height: 1.9; }
+.refs a { color: var(--accent); border-bottom: 1px dotted var(--accent); }
+
+/* ---------- 밀도 압축 변형 (콘텐츠 많은 슬라이드: 본문 깎기 전에 먼저 시도) ----------
+   per-slide frontmatter: class: compact */
+.compact { padding-top: 1.9rem; }
+.compact h1 { margin-bottom: 0.45rem; font-size: 1.6rem; }
+.compact .duo, .compact .trio, .compact .quad { margin: 0.6rem 0; gap: 0.6rem; }
+.compact .pane { padding: 0.6rem 0.8rem; }
+.compact .steps { gap: 0.4rem; margin: 0.6rem 0; }
+.compact .steps > div { padding: 0.42rem 0.75rem; }
+.compact .note, .compact .callout { margin-top: 0.6rem; padding: 0.45rem 0.8rem; }
+.compact .deflist > div { padding: 0.36rem 0; }

@@ -1,0 +1,28 @@
+{
+  "name": "deck",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "slidev slides.md",
+    "build": "slidev build slides.md --out dist",
+    "build:base": "slidev build slides.md --base /llm-to-rag-slides/ --out dist && node scripts/strip-dead-preload.mjs dist",
+    "qa": "node scripts/visual-qa.mjs",
+    "capture": "node scripts/capture-steps.mjs",
+    "annotate": "node scripts/annotate-steps.mjs"
+  },
+  "dependencies": {
+    "@slidev/cli": "52.15.2",
+    "@slidev/theme-default": "latest",
+    "vue": "^3.5.33"
+  },
+  "devDependencies": {
+    "playwright-chromium": "^1.60.0",
+    "playwright-core": "^1.60.0",
+    "sharp": "^0.34.0"
+  },
+  "pnpm": {
+    "overrides": {
+      "@slidev/client": "52.15.2"
+    }
+  }
+}
