@@ -258,6 +258,22 @@ class: divider
 <p class="note"><b>Modular RAG</b> retriever · reranker · generator … 이런 부품을 끼워 조립하는 방식입니다.</p>
 
 ---
+
+<p class="crumbs"><b>LangChain RAG</b><span>RAG 아키텍처</span><em>임베딩 vs rerank</em></p>
+
+# 둘 다 "관련도"를 보지만, <em>배운 방식</em>이 다릅니다
+
+<div class="vs">
+<div class="pane"><h3><span class="latin">BI-ENCODER</span>임베딩 모델</h3><p>질문·문서를 <em>따로</em> 벡터로. "비슷하면 가깝게" 배워서 수백만 개를 <em>빠르게</em> 추린다 — 대신 미묘한 관련도는 놓친다.</p></div>
+<i class="vs-badge">vs</i>
+<div class="pane key"><h3><span class="latin">CROSS-ENCODER</span>rerank 모델</h3><p>질문·문서를 <em>함께</em> 넣어 관련도를 직접 배운다. <em>정밀</em>하지만 느려서, 추려진 후보 몇십 개에만 쓴다.</p></div>
+</div>
+
+<p class="lead">임베딩은 <em>따로 보고 거리만</em>, rerank는 <em>나란히 놓고 같이 읽어</em> 순위를 매깁니다.</p>
+
+<!-- 엘리스엔 reranker가 없어 OpenRouter의 cohere/rerank-4-fast를 쓴다(노트북은 rate limit 때문에 개념만). -->
+
+---
 class: divider
 ---
 

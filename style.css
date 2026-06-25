@@ -112,6 +112,8 @@
 .slidev-layout em.ok,   .slidev-layout .c-ok   { font-style: normal; color: var(--ok); }
 .slidev-layout em.warn, .slidev-layout .c-warn { font-style: normal; color: var(--warn); }
 .slidev-layout em.bad,  .slidev-layout .c-bad  { font-style: normal; color: var(--bad); }
+.slidev-layout em { font-style: normal; }          /* 한글 이탤릭 전역 금지 (강조는 색/weight로) */
+.pane p em { color: var(--accent); }               /* 카드 본문 강조는 액센트 색 (em.bad/c-ok은 특이도로 유지) */
 
 /* ---------- 카드 그리드 (나열·개념) ----------
    계약: .duo/.trio/.quad 직계 자식은 .pane. .pane 안은 h3(제목)+p(본문)만. */
